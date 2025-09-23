@@ -1,0 +1,10 @@
+// Fixes for PhoneVerificationTab.tsx
+// 1. Add back the correct declare global block for window.recaptchaVerifier
+// 2. Remove any duplicate or misplaced closing braces
+// 3. Ensure all code is inside the component and not in ambient context
+
+declare global {
+  interface Window {
+    recaptchaVerifier?: any;
+  }
+}

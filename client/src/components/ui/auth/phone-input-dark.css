@@ -1,0 +1,30 @@
+.country-list {
+  background-color: #000; /* black background */
+  color: rgb(84, 74, 74); /* text color */
+}
+
+.country-list .country {
+  background-color: #000; /* black background for each country */
+  color: rgb(84, 74, 74); /* text color */
+}
+.country-list .country:hover {
+  background-color: #333; /* darker background on hover */
+}
+.country-list .country.selected {
+  background-color: #555; /* different background for selected country */
+}
+.country-list .country .flag {
+  margin-right: 10px;
+}
+.country-list   .scrollable-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #000;
+ 
+}
+.country-list .country:hover,
+.country-list .country:focus,
+.country-list .country.highlight {
+  background: #0b0a0a !important;
+  color: #08ad26 !important;
+}

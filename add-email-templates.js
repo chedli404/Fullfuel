@@ -87,7 +87,7 @@ Full Fuel TV - Your Electronic Music Destination
       <body style="background-color: #0A0A0A !important; color: #ffffff !important; margin: 0; padding: 20px;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #1A1A1A !important;">
           <div style="background-color: #121212 !important; padding: 40px 30px; text-align: center; border-bottom: 2px solid #00ff40;">
-            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff !important;"> Club Night Alert</h1>
+            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff !important;"> Club Stream Alert</h1>
           </div>
           <div style="padding: 40px 30px; background-color: #1A1A1A !important;">
             <h2 style="color: #00ff40 !important; margin: 0 0 20px 0; font-size: 24px;">{{streamTitle}}</h2>
@@ -142,7 +142,7 @@ Full Fuel TV - Your Electronic Music Destination
       <body style="background-color: #0A0A0A !important; color: #ffffff !important; margin: 0; padding: 20px;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #1A1A1A !important;">
           <div style="background-color: #121212 !important; padding: 40px 30px; text-align: center; border-bottom: 2px solid #00ff40;">
-            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff !important;"> Exclusive DJ Set</h1>
+            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff !important;"> DJ Set Stream Alert</h1>
           </div>
           <div style="padding: 40px 30px; background-color: #1A1A1A !important;">
             <h2 style="color: #00ff40 !important; margin: 0 0 20px 0; font-size: 24px;">{{streamTitle}}</h2>
@@ -197,7 +197,7 @@ Full Fuel TV - Your Electronic Music Destination
       <body style="background-color: #0A0A0A !important; color: #ffffff !important; margin: 0; padding: 20px;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #1A1A1A !important;">
           <div style="background-color: #121212 !important; padding: 40px 30px; text-align: center; border-bottom: 2px solid #00ff40;">
-            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff !important;"> World Premiere</h1>
+            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff !important;"> Premiere Stream Alert</h1>
           </div>
           <div style="padding: 40px 30px; background-color: #1A1A1A !important;">
             <h2 style="color: #00ff40 !important; margin: 0 0 20px 0; font-size: 24px;">{{streamTitle}}</h2>

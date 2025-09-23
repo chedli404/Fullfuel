@@ -45,7 +45,7 @@ export const generateVerificationToken = (): string => {
 export { transporter };
 
 export const sendVerificationEmail = async (email: string, username: string, token: string) => {
-  const verificationUrl = `${process.env.SERVER_URL || 'http://fullfueltv.online'}/api/auth/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.SERVER_URL || 'https://fullfueltv.online'}/api/auth/verify-email?token=${token}`;
   console.log('Verification URL:', verificationUrl);
   console.log('Email config:', {
     user: process.env.EMAIL_USER,

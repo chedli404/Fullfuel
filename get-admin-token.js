@@ -85,7 +85,7 @@ async function getAdminToken() {
       console.log("\nUse this token in your requests with the Authorization header:");
       console.log("\x1b[33m%s\x1b[0m", `Authorization: Bearer ${result.token}`);
       console.log("\nExample curl command:");
-      console.log("\x1b[36m%s\x1b[0m", `curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${result.token}" -d '{"name":"Test Product","description":"A test product","price":29.99,"category":"clothing","stockQuantity":10,"images":["https://example.com/image.jpg"]}' http://localhost:5000/api/shop/products`);
+      console.log("\x1b[36m%s\x1b[0m", `curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${result.token}" -d '{"name":"Test Product","description":"A test product","price":29.99,"category":"clothing","stockQuantity":10,"images":["https://example.com/image.jpg"]}' http://fullfueltv.online/api/shop/products`);
       return;
     }
   }

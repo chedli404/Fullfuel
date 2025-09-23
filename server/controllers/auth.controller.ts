@@ -25,7 +25,7 @@ export const authController = {
   verifyEmail: async (req: Request, res: Response) => {
     try {
       const { token } = req.query;
-      const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5000';
+      const CLIENT_URL = process.env.CLIENT_URL || 'http://fullfueltv.online';
       console.log('Verification attempt with token:', token);
 
       if (!token || typeof token !== 'string') {
@@ -62,7 +62,7 @@ export const authController = {
       return res.redirect(`${CLIENT_URL}/verify?status=success&token=${encodeURIComponent(tokenJwt)}&user=${encodeURIComponent(JSON.stringify(userWithoutPassword))}`);
     } catch (error) {
       console.error('Email verification error:', error);
-      const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5000';
+      const CLIENT_URL = process.env.CLIENT_URL || 'http://fullfueltv.online';
       return res.redirect(`${CLIENT_URL}/verify?status=error&message=${encodeURIComponent('Error verifying email')}`);
     }
   },

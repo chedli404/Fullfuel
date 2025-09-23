@@ -39,10 +39,10 @@ const EventsPage = () => {
         <section className="relative pt-32 pb-16 bg-[#121212]">
           <div className="container mx-auto px-6 md:px-12">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Upcoming <span className="text-primary">Events</span>
+              Upcoming <span className="text-primary">Stream</span>
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mb-12">
-              Discover the hottest electronic music events, festivals, and club nights happening around the world.
+              Discover the hottest electronic music streams, festivals, and club nights happening around the world.
             </p>
           </div>
         </section>

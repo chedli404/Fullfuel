@@ -47,22 +47,22 @@ const Footer = () => {
             </div>
           </div>
 
-          <div>
+          <div >
             <h3 className="text-xl font-bold mb-6">Quick Links</h3>
-            <ul className="space-y-3">
+            <ul className=" grid grid-cols-2 gap-2   ">
               <li>
                 <Link to="/videos">
                   <span className="text-gray-400 hover:text-primary transition-colors cursor-pointer">Videos</span>
                 </Link>
               </li>
               <li>
-                <Link to="/events">
-                  <span className="text-gray-400 hover:text-primary transition-colors cursor-pointer">Events</span>
+                <Link to="/music">
+                  <span className="text-gray-400 hover:text-primary transition-colors cursor-pointer">Audio</span>
                 </Link>
               </li>
               <li>
-                <Link to="/music">
-                  <span className="text-gray-400 hover:text-primary transition-colors cursor-pointer">Music</span>
+                <Link to="/shop">
+                  <span className="text-gray-400 hover:text-primary transition-colors cursor-pointer">Shop</span>
                 </Link>
               </li>
               <li>
@@ -85,17 +85,11 @@ const Footer = () => {
                 <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <a href="mailto:info@fullfuel.tv" className="hover:text-primary transition-colors">
-                  info@fullfuel.tv
+                <a href="mailto:infofullfueltv@gmail.com" className="hover:text-primary transition-colors">
+                  infofullfueltv@gmail.com
                 </a>
               </li>
-              <li className="flex items-center gap-3">
-                <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>Tunisia </span>
-              </li>
+              
             </ul>
           </div>
         </div>

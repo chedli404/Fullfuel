@@ -111,11 +111,9 @@ const FeaturedVideos = () => {
                 </a>
               </Link>
               <div className="flex justify-between items-center">
-                <span className="text-gray-400 text-sm">
-                  {ytStatsMap[video.youtubeId]?.viewCount
-                    ? Number(ytStatsMap[video.youtubeId].viewCount).toLocaleString() + ' views'
-                    : (video.views?.toLocaleString() || '0 views')}
-                </span>
+                <span className="text-gray-400 text-sm">views {ytStatsMap[video.youtubeId]?.viewCount
+                    ? Number(ytStatsMap[video.youtubeId].viewCount).toLocaleString()
+                    : (video.views?.toLocaleString() || '0')} </span>
                 <span className="text-primary font-mono text-sm">
                   {ytDatesMap[video.youtubeId]
                     ? new Date(ytDatesMap[video.youtubeId]).toLocaleDateString('en-US', {

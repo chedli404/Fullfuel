@@ -95,6 +95,7 @@ export default function AdminDashboard() {
   const [showMixModal, setShowMixModal] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
+  const [showStreamModal, setShowStreamModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   
   // Current item being edited
@@ -103,6 +104,7 @@ export default function AdminDashboard() {
   const [currentMix, setCurrentMix] = useState<Partial<MixType> | null>(null);
   const [currentGallery, setCurrentGallery] = useState<Partial<GalleryType> | null>(null);
   const [currentProduct, setCurrentProduct] = useState<Partial<any> | null>(null);
+  const [currentStream, setCurrentStream] = useState<Partial<any> | null>(null);
   
   // Alert dialog for delete confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -176,6 +178,25 @@ export default function AdminDashboard() {
     queryFn: async () => {
       const response = await apiRequest('/api/shop/products');
       return response || [];
+    },
+    enabled: user?.role === 'admin',
+  });
+
+  // Query for streams data
+  const { data: streams, isLoading: streamsLoading } = useQuery({
+    queryKey: ['/api/streams/all'],
+    queryFn: async () => {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch('/api/streams/all', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch streams: ${response.status}`);
+      }
+      return response.json();
     },
     enabled: user?.role === 'admin',
   });
@@ -790,6 +811,231 @@ export default function AdminDashboard() {
     }
   };
 
+  // Stream mutations
+  const createStreamMutation = useMutation({
+    mutationFn: (data: any) => {
+      const token = localStorage.getItem('auth_token');
+      return fetch('/api/streams', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to create stream');
+        return res.json();
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Stream Created",
+        description: "New stream has been added successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/streams/all'] });
+      setShowStreamModal(false);
+      setCurrentStream(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create stream.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateStreamMutation = useMutation({
+    mutationFn: (data: { id: string; stream: any }) => {
+      const token = localStorage.getItem('auth_token');
+      return fetch(`/api/streams/${data.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data.stream)
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to update stream');
+        return res.json();
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Stream Updated",
+        description: "Stream has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/streams/all'] });
+      setShowStreamModal(false);
+      setCurrentStream(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update stream.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteStreamMutation = useMutation({
+    mutationFn: (id: string) => {
+      const token = localStorage.getItem('auth_token');
+      return fetch(`/api/streams/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to delete stream');
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Stream Deleted",
+        description: "Stream has been deleted successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/streams/all'] });
+      setShowDeleteConfirm(false);
+      setItemToDelete(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete stream.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Stream handlers
+  const handleAddStream = () => {
+    setIsEditMode(false);
+    setCurrentStream({
+      title: '',
+      description: '',
+      artist: '',
+      scheduledDate: new Date().toISOString().slice(0, 16),
+      streamType: 'festival',
+      thumbnailUrl: '',
+      youtubeId: '',
+      expectedViewers: 0
+    });
+    setShowStreamModal(true);
+  };
+
+  const handleEditStream = (stream: any) => {
+    setIsEditMode(true);
+    setCurrentStream({
+      ...stream,
+      scheduledDate: new Date(stream.scheduledDate).toISOString().slice(0, 16)
+    });
+    setShowStreamModal(true);
+  };
+
+  const handleDeleteStream = (id: string) => {
+    setItemToDelete({ type: 'stream', id });
+    setShowDeleteConfirm(true);
+  };
+
+  const handleStreamSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!currentStream) return;
+
+    const streamData = {
+      ...currentStream,
+      scheduledDate: new Date(currentStream.scheduledDate),
+      expectedViewers: parseInt(currentStream.expectedViewers.toString()) || 0
+    };
+
+    if (isEditMode && currentStream.id) {
+      updateStreamMutation.mutate({
+        id: currentStream.id,
+        stream: streamData
+      });
+    } else {
+      createStreamMutation.mutate(streamData);
+    }
+  };
+
+  // StreamsTable component
+  const StreamsTable = () => {
+    if (streamsLoading) {
+      return (
+        <div className="flex justify-center py-10">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+        </div>
+      );
+    }
+
+    return (
+      <Table>
+        <TableCaption>List of all streams</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Title</TableHead>
+            <TableHead>Artist</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Scheduled Date</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Expected Viewers</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {streams?.map((stream: any) => (
+            <TableRow key={stream.id}>
+              <TableCell className="font-medium">{stream.title}</TableCell>
+              <TableCell>{stream.artist}</TableCell>
+              <TableCell>
+                <Badge variant={
+                  stream.streamType === 'festival' ? 'default' :
+                  stream.streamType === 'club' ? 'secondary' : 'outline'
+                }>
+                  {stream.streamType}
+                </Badge>
+              </TableCell>
+              <TableCell>{new Date(stream.scheduledDate).toLocaleDateString()}</TableCell>
+              <TableCell>
+                <Badge variant={
+                  stream.streamStatus === 'live' ? 'destructive' :
+                  stream.streamStatus === 'scheduled' ? 'default' : 'outline'
+                }>
+                  {stream.streamStatus}
+                </Badge>
+              </TableCell>
+              <TableCell>{stream.expectedViewers?.toLocaleString() || 0}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => handleEditStream(stream)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => handleDeleteStream(stream.id)}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          )) || (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                No streams found. Create your first stream!
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    );
+  };
+
   // If user is not yet loaded or not an admin
   if (!user) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -831,7 +1077,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-6 w-full mb-8">
+          <TabsList className="grid grid-cols-7 w-full mb-8">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span>Users</span>
@@ -855,6 +1101,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="shop" className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4" />
               <span>Shop</span>
+            </TabsTrigger>
+            <TabsTrigger value="streams" className="flex items-center gap-2">
+              <Video className="h-4 w-4" />
+              <span>Streams</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1271,6 +1521,30 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Streams Tab */}
+          <TabsContent value="streams">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Stream Management</CardTitle>
+                  <CardDescription>
+                    Manage live streams, create new streams, and update existing ones.
+                  </CardDescription>
+                </div>
+                <Button 
+                  className="flex items-center gap-2"
+                  onClick={handleAddStream}
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  <span>Add Stream</span>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <StreamsTable />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Shop Tab */}
           <TabsContent value="shop">
             <Card>
@@ -1400,6 +1674,8 @@ export default function AdminDashboard() {
                     deleteMixMutation.mutate(itemToDelete.id);
                   } else if (itemToDelete.type === 'gallery') {
                     deleteGalleryItemMutation.mutate(itemToDelete.id);
+                  } else if (itemToDelete.type === 'stream') {
+                    deleteStreamMutation.mutate(itemToDelete.id);
                   }
                 }
               }}
@@ -2030,6 +2306,136 @@ export default function AdminDashboard() {
               </Button>
               <Button type="submit">
                 {isEditMode ? "Update" : "Add"} Product
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Stream Modal */}
+      <Dialog open={showStreamModal} onOpenChange={setShowStreamModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{isEditMode ? "Edit Stream" : "Add New Stream"}</DialogTitle>
+            <DialogDescription>
+              {isEditMode ? "Update stream details" : "Add a new stream to your platform"}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleStreamSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="title" className="text-right">
+                  Title
+                </Label>
+                <Input
+                  id="title"
+                  value={currentStream?.title || ''}
+                  onChange={(e) => setCurrentStream({...currentStream, title: e.target.value})}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="artist" className="text-right">
+                  Artist
+                </Label>
+                <Input
+                  id="artist"
+                  value={currentStream?.artist || ''}
+                  onChange={(e) => setCurrentStream({...currentStream, artist: e.target.value})}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="description" className="text-right">
+                  Description
+                </Label>
+                <Textarea
+                  id="description"
+                  value={currentStream?.description || ''}
+                  onChange={(e) => setCurrentStream({...currentStream, description: e.target.value})}
+                  className="col-span-3"
+                  rows={3}
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="streamType" className="text-right">
+                  Type
+                </Label>
+                <Select 
+                  value={currentStream?.streamType || 'festival'} 
+                  onValueChange={(value) => setCurrentStream({...currentStream, streamType: value})}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select stream type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="festival">Festival</SelectItem>
+                    <SelectItem value="club">Club</SelectItem>
+                    <SelectItem value="dj-set">DJ Set</SelectItem>
+                    <SelectItem value="premiere">Premiere</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="scheduledDate" className="text-right">
+                  Date & Time
+                </Label>
+                <Input
+                  id="scheduledDate"
+                  type="datetime-local"
+                  value={currentStream?.scheduledDate || ''}
+                  onChange={(e) => setCurrentStream({...currentStream, scheduledDate: e.target.value})}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="thumbnailUrl" className="text-right">
+                  Thumbnail URL
+                </Label>
+                <Input
+                  id="thumbnailUrl"
+                  value={currentStream?.thumbnailUrl || ''}
+                  onChange={(e) => setCurrentStream({...currentStream, thumbnailUrl: e.target.value})}
+                  className="col-span-3"
+                  placeholder="https://i.imgur.com/..."
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="expectedViewers" className="text-right">
+                  Expected Viewers
+                </Label>
+                <Input
+                  id="expectedViewers"
+                  type="number"
+                  min="0"
+                  value={currentStream?.expectedViewers || 0}
+                  onChange={(e) => setCurrentStream({...currentStream, expectedViewers: parseInt(e.target.value) || 0})}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="youtubeId" className="text-right">
+                  YouTube ID
+                </Label>
+                <Input
+                  id="youtubeId"
+                  value={currentStream?.youtubeId || ''}
+                  onChange={(e) => setCurrentStream({...currentStream, youtubeId: e.target.value})}
+                  className="col-span-3"
+                  placeholder="dQw4w9WgXcQ (optional)"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setShowStreamModal(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">
+                {isEditMode ? "Update" : "Add"} Stream
               </Button>
             </DialogFooter>
           </form>

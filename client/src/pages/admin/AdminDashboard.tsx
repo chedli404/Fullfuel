@@ -23,7 +23,8 @@ import {
   Image, 
   BarChart3, 
   Settings, 
-  Ticket 
+  Ticket,
+  Radio 
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -82,6 +83,8 @@ export default function AdminDashboard() {
         return <ContentManagementPlaceholder type="gallery" />;
       case 'tickets':
         return <ContentManagementPlaceholder type="tickets" />;
+      case 'streams':
+        return <StreamManagement />;
       default:
         return (
           <div>
@@ -135,6 +138,13 @@ export default function AdminDashboard() {
                     icon={<Ticket className="w-5 h-5 text-orange-500" />}
                     count={56}
                     onClick={() => setActiveTab('tickets')}
+                  />
+                  <DashboardCard 
+                    title="Streams" 
+                    description="Manage live streams" 
+                    icon={<Radio className="w-5 h-5 text-pink-500" />}
+                    count={12}
+                    onClick={() => setActiveTab('streams')}
                   />
                 </div>
               </CardContent>
@@ -226,6 +236,14 @@ export default function AdminDashboard() {
             >
               <Ticket className="mr-2 h-4 w-4" />
               Tickets
+            </Button>
+            <Button
+              variant={activeTab === 'streams' ? 'default' : 'ghost'}
+              className="w-full justify-start"
+              onClick={() => setActiveTab('streams')}
+            >
+              <Radio className="mr-2 h-4 w-4" />
+              Streams
             </Button>
             <Separator className="my-2" />
             <Button
@@ -344,6 +362,344 @@ function UserManagementPlaceholder() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// Stream Management Component
+function StreamManagement() {
+  const [streams, setStreams] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingStream, setEditingStream] = useState(null);
+  const { toast } = useToast();
+
+  // Fetch streams
+  const { data: streamsData, refetch, isLoading: streamsLoading, error: streamsError } = useQuery({
+    queryKey: ['/api/streams/all'],
+    queryFn: async () => {
+      const token = localStorage.getItem('auth_token');
+      console.log('Fetching streams with token:', token ? 'Present' : 'Missing');
+      
+      const response = await fetch('/api/streams/all', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      console.log('Streams API response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Streams API error:', errorText);
+        throw new Error(`Failed to fetch streams: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Streams data:', data);
+      return data;
+    }
+  });
+
+  if (streamsError) {
+    console.error('Streams query error:', streamsError);
+  }
+
+  const handleDeleteStream = async (streamId: string) => {
+    if (!confirm('Are you sure you want to delete this stream?')) return;
+    
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`/api/streams/${streamId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        toast({ title: 'Stream deleted successfully' });
+        refetch();
+      } else {
+        throw new Error('Failed to delete stream');
+      }
+    } catch (error) {
+      toast({ title: 'Error deleting stream', variant: 'destructive' });
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>Stream Management</CardTitle>
+            <CardDescription>
+              Manage live streams, create new streams, and update existing ones.
+            </CardDescription>
+          </div>
+          <Button onClick={() => setShowCreateForm(true)}>
+            <Radio className="mr-2 h-4 w-4" />
+            Add New Stream
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {showCreateForm && (
+          <div className="mb-6 p-4 border rounded-lg bg-muted/50">
+            <StreamForm 
+              stream={editingStream}
+              onSave={() => {
+                setShowCreateForm(false);
+                setEditingStream(null);
+                refetch();
+              }}
+              onCancel={() => {
+                setShowCreateForm(false);
+                setEditingStream(null);
+              }}
+            />
+          </div>
+        )}
+        
+        <div className="rounded-md border">
+          <div className="grid grid-cols-6 gap-4 p-4 border-b font-medium">
+            <div>Title</div>
+            <div>Artist</div>
+            <div>Type</div>
+            <div>Scheduled Date</div>
+            <div>Status</div>
+            <div>Actions</div>
+          </div>
+          <div className="divide-y">
+            {streamsLoading ? (
+              <div className="p-8 text-center">
+                <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-solid border-current border-r-transparent"></div>
+                <p className="mt-2 text-sm text-muted-foreground">Loading streams...</p>
+              </div>
+            ) : streamsError ? (
+              <div className="p-8 text-center text-red-500">
+                <p>Error loading streams: {streamsError.message}</p>
+                <Button onClick={() => refetch()} className="mt-2">Retry</Button>
+              </div>
+            ) : streamsData && streamsData.length > 0 ? (
+              streamsData.map((stream: any) => (
+              <div key={stream.id} className="grid grid-cols-6 gap-4 p-4 items-center">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                    <Radio className="w-4 h-4" />
+                  </div>
+                  <span className="font-medium">{stream.title}</span>
+                </div>
+                <div>{stream.artist}</div>
+                <div>
+                  <span className={`px-2 py-1 text-xs rounded-sm ${
+                    stream.streamType === 'festival' ? 'bg-purple-900/30 text-purple-400' :
+                    stream.streamType === 'club' ? 'bg-blue-900/30 text-blue-400' :
+                    stream.streamType === 'dj-set' ? 'bg-green-900/30 text-green-400' :
+                    'bg-orange-900/30 text-orange-400'
+                  }`}>
+                    {stream.streamType}
+                  </span>
+                </div>
+                <div>{new Date(stream.scheduledDate).toLocaleDateString()}</div>
+                <div>
+                  <span className={`px-2 py-1 text-xs rounded-sm ${
+                    stream.streamStatus === 'live' ? 'bg-red-900/30 text-red-400' :
+                    stream.streamStatus === 'scheduled' ? 'bg-yellow-900/30 text-yellow-400' :
+                    'bg-gray-900/30 text-gray-400'
+                  }`}>
+                    {stream.streamStatus}
+                  </span>
+                </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      setEditingStream(stream);
+                      setShowCreateForm(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-red-500"
+                    onClick={() => handleDeleteStream(stream.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ))
+            ) : (
+              <div className="p-8 text-center text-muted-foreground">
+                No streams found. Create your first stream!
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Stream Form Component
+function StreamForm({ stream, onSave, onCancel }: { stream?: any; onSave: () => void; onCancel: () => void }) {
+  const [formData, setFormData] = useState({
+    title: stream?.title || '',
+    description: stream?.description || '',
+    artist: stream?.artist || '',
+    scheduledDate: stream?.scheduledDate ? new Date(stream.scheduledDate).toISOString().slice(0, 16) : '',
+    streamType: stream?.streamType || 'festival',
+    thumbnailUrl: stream?.thumbnailUrl || '',
+    youtubeId: stream?.youtubeId || '',
+    expectedViewers: stream?.expectedViewers || 0
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const token = localStorage.getItem('auth_token');
+      const url = stream ? `/api/streams/${stream.id}` : '/api/streams';
+      const method = stream ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...formData,
+          scheduledDate: new Date(formData.scheduledDate),
+          expectedViewers: parseInt(formData.expectedViewers.toString())
+        })
+      });
+
+      if (response.ok) {
+        toast({ title: `Stream ${stream ? 'updated' : 'created'} successfully` });
+        onSave();
+      } else {
+        throw new Error(`Failed to ${stream ? 'update' : 'create'} stream`);
+      }
+    } catch (error) {
+      toast({ title: `Error ${stream ? 'updating' : 'creating'} stream`, variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Title</label>
+          <input
+            type="text"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            className="w-full p-2 border rounded-md bg-background"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Artist</label>
+          <input
+            type="text"
+            value={formData.artist}
+            onChange={(e) => setFormData({ ...formData, artist: e.target.value })}
+            className="w-full p-2 border rounded-md bg-background"
+            required
+          />
+        </div>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-1">Description</label>
+        <textarea
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          className="w-full p-2 border rounded-md bg-background"
+          rows={3}
+          required
+        />
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Stream Type</label>
+          <select
+            value={formData.streamType}
+            onChange={(e) => setFormData({ ...formData, streamType: e.target.value })}
+            className="w-full p-2 border rounded-md bg-background"
+          >
+            <option value="festival">Festival</option>
+            <option value="club">Club</option>
+            <option value="dj-set">DJ Set</option>
+            <option value="premiere">Premiere</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Scheduled Date</label>
+          <input
+            type="datetime-local"
+            value={formData.scheduledDate}
+            onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
+            className="w-full p-2 border rounded-md bg-background"
+            required
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Thumbnail URL (Imgur)</label>
+          <input
+            type="url"
+            value={formData.thumbnailUrl}
+            onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
+            className="w-full p-2 border rounded-md bg-background"
+            placeholder="https://i.imgur.com/..."
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Expected Viewers</label>
+          <input
+            type="number"
+            value={formData.expectedViewers}
+            onChange={(e) => setFormData({ ...formData, expectedViewers: parseInt(e.target.value) || 0 })}
+            className="w-full p-2 border rounded-md bg-background"
+            min="0"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-1">YouTube ID (optional)</label>
+        <input
+          type="text"
+          value={formData.youtubeId}
+          onChange={(e) => setFormData({ ...formData, youtubeId: e.target.value })}
+          className="w-full p-2 border rounded-md bg-background"
+          placeholder="dQw4w9WgXcQ"
+        />
+      </div>
+      
+      <div className="flex justify-end space-x-2">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : (stream ? 'Update Stream' : 'Create Stream')}
+        </Button>
+      </div>
+    </form>
   );
 }
 

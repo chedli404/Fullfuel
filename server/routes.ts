@@ -10,6 +10,7 @@ import { shopController } from "./controllers/shop.controller";
 import session from "express-session";
 import { connectToDatabase, UserModel } from "./models/db";
 import { generateVerificationToken, sendVerificationEmail, sendContactMessage } from "./emailService";
+import { notificationScheduler } from "./notificationScheduler";
 import Stripe from "stripe";
 import jwt from "jsonwebtoken";
 
@@ -74,6 +75,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Connect to MongoDB
   await connectToDatabase();
+  
+  // Start notification scheduler
+  notificationScheduler.start();
   
   // Initialize PayPal client if credentials are available
   if (process.env.VITE_PAYPAL_CLIENT_ID) {
@@ -624,6 +628,186 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Streams endpoints
+  app.get("/api/streams/upcoming", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 6;
+      const streams = await storage.getUpcomingStreams(limit);
+      res.json(streams);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch upcoming streams" });
+    }
+  });
+
+  // Get all streams (admin only) - MOVED HERE to avoid route conflicts
+  app.get('/api/streams/all', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+      const user = await storage.getUser(decoded.id);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const streams = await storage.getAllStreams();
+      res.json(streams);
+    } catch (error) {
+      console.error("Get all streams error:", error);
+      res.status(500).json({ message: "Failed to fetch streams" });
+    }
+  });
+
+  app.get("/api/streams/:id", async (req, res) => {
+    try {
+      const stream = await storage.getStream(req.params.id);
+      if (!stream) {
+        return res.status(404).json({ message: "Stream not found" });
+      }
+      res.json(stream);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch stream" });
+    }
+  });
+
+  // Stream notifications
+  app.post("/api/notifications/subscribe", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+      
+      const { streamId, notificationType } = req.body;
+      if (!streamId || !notificationType) {
+        return res.status(400).json({ error: 'Stream ID and notification type required' });
+      }
+      
+      // Get stream details to calculate notification time
+      const stream = await storage.getStream(streamId);
+      if (!stream) {
+        return res.status(404).json({ error: 'Stream not found' });
+      }
+      
+      // Calculate notification time based on type
+      const streamDate = new Date(stream.scheduledDate);
+      let notifyAt = new Date(streamDate);
+      
+      switch (notificationType) {
+        case '15min':
+          notifyAt.setMinutes(notifyAt.getMinutes() - 15);
+          break;
+        case '1hour':
+          notifyAt.setHours(notifyAt.getHours() - 1);
+          break;
+        case '24hour':
+          notifyAt.setHours(notifyAt.getHours() - 24);
+          break;
+        default:
+          return res.status(400).json({ error: 'Invalid notification type' });
+      }
+      
+      const notification = await storage.createStreamNotification({
+        userId: decoded.id,
+        streamId,
+        notificationType,
+        notifyAt,
+        status: 'pending'
+      });
+      
+      res.status(201).json(notification);
+    } catch (error) {
+      console.error("Subscribe to notification error:", error);
+      res.status(500).json({ message: "Failed to subscribe to notifications" });
+    }
+  });
+
+  // Stream management (admin)
+  app.post('/api/streams', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+      const user = await storage.getUser(decoded.id);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const newStream = await storage.createStream(req.body);
+      res.status(201).json(newStream);
+    } catch (error) {
+      console.error("Create stream error:", error);
+      res.status(500).json({ message: "Failed to create stream" });
+    }
+  });
+  
+  app.put('/api/streams/:id', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+      const user = await storage.getUser(decoded.id);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const updatedStream = await storage.updateStream(req.params.id, req.body);
+      if (!updatedStream) {
+        return res.status(404).json({ error: 'Stream not found' });
+      }
+      
+      res.json(updatedStream);
+    } catch (error) {
+      console.error("Update stream error:", error);
+      res.status(500).json({ message: "Failed to update stream" });
+    }
+  });
+  
+  app.delete('/api/streams/:id', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+      const user = await storage.getUser(decoded.id);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const success = await storage.deleteStream(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: 'Stream not found' });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      console.error("Delete stream error:", error);
+      res.status(500).json({ message: "Failed to delete stream" });
+    }
+  });
+
   // Gallery management (admin)
   app.post('/api/gallery', async (req, res) => {
     try {

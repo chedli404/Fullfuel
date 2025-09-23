@@ -126,6 +126,44 @@ export const ContentModerationModel = mongoose.models.ContentModeration || mongo
 export const AdminActionLogModel = mongoose.models.AdminActionLog || mongoose.model<IAdminActionLog>('AdminActionLog', AdminActionLog.schema);
 export const GalleryCollectionModel = mongoose.models.GalleryCollection || mongoose.model<IGalleryCollection>('GalleryCollection', GalleryCollection.schema);
 
+// Stream models
+export const StreamModel = mongoose.models.Stream || mongoose.model('Stream', new Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  artist: { type: String, required: true },
+  scheduledDate: { type: Date, required: true },
+  youtubeId: { type: String },
+  thumbnailUrl: { type: String },
+  streamType: { type: String, enum: ['festival', 'club', 'dj-set', 'premiere'], required: true },
+  streamStatus: { type: String, enum: ['scheduled', 'live', 'ended'], default: 'scheduled' },
+  expectedViewers: { type: Number, default: 0 },
+  actualViewers: { type: Number, default: 0 },
+  streamUrl: { type: String },
+  featured: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date }
+}));
+
+export const StreamNotificationModel = mongoose.models.StreamNotification || mongoose.model('StreamNotification', new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  streamId: { type: Schema.Types.ObjectId, ref: 'Stream', required: true },
+  notifyAt: { type: Date, required: true },
+  notificationType: { type: String, enum: ['15min', '1hour', '24hour'], required: true },
+  status: { type: String, enum: ['pending', 'sent', 'failed'], default: 'pending' },
+  createdAt: { type: Date, default: Date.now }
+}));
+
+export const EmailTemplateModel = mongoose.models.EmailTemplate || mongoose.model('EmailTemplate', new Schema({
+  name: { type: String, required: true, unique: true },
+  streamType: { type: String, enum: ['festival', 'club', 'dj-set', 'premiere'], required: true },
+  subject: { type: String, required: true },
+  htmlContent: { type: String, required: true },
+  textContent: { type: String },
+  variables: [{ type: String }],
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date }
+}));
+
 // Export models for use in the application
 export { 
   User, 

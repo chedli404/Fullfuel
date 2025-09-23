@@ -25,7 +25,7 @@ const EventsSection = () => {
       <section id="events" className="py-16 md:py-24 bg-[#1A1A1A]">
         <div className="container mx-auto px-6 md:px-12">
           <h2 className="font-bold text-3xl md:text-4xl mb-12">
-            Upcoming <span className="text-primary">Events</span>
+            Upcoming <span className="text-primary">Stream</span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => (
@@ -46,7 +46,7 @@ const EventsSection = () => {
       <section id="events" className="py-16 md:py-24 bg-[#1A1A1A]">
         <div className="container mx-auto px-6 md:px-12">
           <h2 className="font-bold text-3xl md:text-4xl mb-6">
-            Upcoming <span className="text-primary">Events</span>
+            Upcoming <span className="text-primary">Stream</span>
           </h2>
           <div className="bg-dark p-6 rounded-sm">
             <h3 className="text-xl font-bold mb-2">Failed to load events</h3>
@@ -62,7 +62,7 @@ const EventsSection = () => {
       <div className="container mx-auto px-6 md:px-12">
         <div className="flex justify-between items-center mb-12">
           <h2 className="font-bold text-3xl md:text-4xl">
-            Upcoming <span className="text-primary">Events</span>
+            Upcoming <span className="text-primary">Stream</span>
           </h2>
           <div className="hidden md:flex space-x-4">
             <button 

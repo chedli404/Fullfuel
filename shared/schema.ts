@@ -149,7 +149,12 @@ export const userSchema = z.object({
     emailNotifications: z.boolean().default(true),
     marketingEmails: z.boolean().default(false),
     darkMode: z.boolean().default(false),
-    language: z.string().default("en")
+    language: z.string().default("en"),
+    streamNotifications: z.object({
+      enabled: z.boolean().default(true),
+      timings: z.array(z.enum(["15min", "1hour", "24hour"])).default(["1hour"]),
+      streamTypes: z.array(z.enum(["festival", "club", "dj-set", "premiere"])).default(["festival", "club", "dj-set", "premiere"])
+    }).optional()
   }).optional(),
   stripeCustomerId: z.string().optional(),
   stripeSubscriptionId: z.string().optional()
@@ -341,3 +346,55 @@ export const commentSchema = z.object({
 
 export type Comment = z.infer<typeof commentSchema>;
 export type InsertComment = Omit<Comment, "id">;
+
+// Stream schema (extends video for scheduled streams)
+export const streamSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  artist: z.string(),
+  scheduledDate: z.date(),
+  youtubeId: z.string().optional(),
+  thumbnailUrl: z.string().optional(), // Imgur URL
+  streamType: z.enum(["festival", "club", "dj-set", "premiere"]),
+  streamStatus: z.enum(["scheduled", "live", "ended"]).default("scheduled"),
+  expectedViewers: z.number().default(0),
+  actualViewers: z.number().default(0),
+  streamUrl: z.string().optional(),
+  featured: z.boolean().default(false),
+  createdAt: z.date(),
+  updatedAt: z.date().optional()
+});
+
+export type Stream = z.infer<typeof streamSchema>;
+export type InsertStream = Omit<Stream, "id" | "createdAt">;
+
+// Stream notification schema
+export const streamNotificationSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  streamId: z.string(),
+  notifyAt: z.date(), // When to send notification
+  notificationType: z.enum(["15min", "1hour", "24hour"]),
+  status: z.enum(["pending", "sent", "failed"]).default("pending"),
+  createdAt: z.date()
+});
+
+export type StreamNotification = z.infer<typeof streamNotificationSchema>;
+export type InsertStreamNotification = Omit<StreamNotification, "id" | "createdAt">;
+
+// Email template schema
+export const emailTemplateSchema = z.object({
+  id: z.string(),
+  name: z.string(), // e.g. "festival_stream_notification"
+  streamType: z.enum(["festival", "club", "dj-set", "premiere"]),
+  subject: z.string(),
+  htmlContent: z.string(),
+  textContent: z.string().optional(),
+  variables: z.array(z.string()).default([]), // e.g. ["streamTitle", "artistName", "streamTime"]
+  createdAt: z.date(),
+  updatedAt: z.date().optional()
+});
+
+export type EmailTemplate = z.infer<typeof emailTemplateSchema>;
+export type InsertEmailTemplate = Omit<EmailTemplate, "id" | "createdAt">;

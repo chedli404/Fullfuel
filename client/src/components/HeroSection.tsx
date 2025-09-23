@@ -76,9 +76,7 @@ const HeroSection = () => {
 
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30 flex flex-col justify-end pb-12 md:pb-24 px-6 md:px-12">
         <div className="container mx-auto">
-          <div className="inline-block bg-primary px-3 py-1 mb-4">
-            <span className="font-mono text-dark text-sm uppercase font-bold">Live Now</span>
-          </div>
+          
           <h2 className="text-4xl md:text-6xl font-bold leading-tight mb-4">{featuredVideo.title}</h2>
           <p className="text-lg md:text-xl mb-8 max-w-2xl">{featuredVideo.description}</p>
           <div className="flex space-x-4">

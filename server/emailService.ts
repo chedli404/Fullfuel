@@ -44,8 +44,73 @@ export const generateVerificationToken = (): string => {
 
 export { transporter };
 
+// Send stream notification email
+export const sendStreamNotification = async (
+  userEmail: string,
+  userName: string,
+  streamData: any,
+  template: any,
+  timing: string
+) => {
+  // Replace template variables
+  const timingText = timing === '15min' ? 'in 15 minutes' : 
+                    timing === '1hour' ? 'in 1 hour' : 
+                    'in 24 hours';
+  
+  const streamTime = new Date(streamData.scheduledDate).toLocaleString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  });
+  
+  const streamUrl = `${process.env.CLIENT_URL || 'https://fullfueltv.online'}/streams/${streamData.id}`;
+  
+  // Replace variables in template
+  let subject = template.subject
+    .replace('{{streamTitle}}', streamData.title)
+    .replace('{{timing}}', timingText);
+    
+  let htmlContent = template.htmlContent
+    .replace(/{{streamTitle}}/g, streamData.title)
+    .replace(/{{artistName}}/g, streamData.artist)
+    .replace(/{{streamTime}}/g, streamTime)
+    .replace(/{{timing}}/g, timingText)
+    .replace(/{{expectedViewers}}/g, streamData.expectedViewers?.toLocaleString() || '0')
+    .replace(/{{streamUrl}}/g, streamUrl);
+    
+  let textContent = template.textContent
+    .replace(/{{streamTitle}}/g, streamData.title)
+    .replace(/{{artistName}}/g, streamData.artist)
+    .replace(/{{streamTime}}/g, streamTime)
+    .replace(/{{timing}}/g, timingText)
+    .replace(/{{expectedViewers}}/g, streamData.expectedViewers?.toLocaleString() || '0')
+    .replace(/{{streamUrl}}/g, streamUrl);
+  
+  const mailOptions = {
+    from: process.env.EMAIL_USER || 'infofullfueltv@gmail.com',
+    to: userEmail,
+    subject: subject,
+    html: htmlContent,
+    text: textContent
+  };
+  
+  try {
+    console.log('Sending stream notification to:', userEmail);
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Stream notification sent successfully:', result.messageId);
+    return result;
+  } catch (error) {
+    console.error('Error sending stream notification:', error);
+    throw error;
+  }
+};
+
 export const sendVerificationEmail = async (email: string, username: string, token: string) => {
-  const verificationUrl = `${process.env.SERVER_URL || 'http://fullfueltv.online'}/api/auth/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.SERVER_URL || 'https://fullfueltv.online'}/api/auth/verify-email?token=${token}`;
   console.log('Verification URL:', verificationUrl);
   console.log('Email config:', {
     user: process.env.EMAIL_USER,

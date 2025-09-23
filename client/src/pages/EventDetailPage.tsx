@@ -88,7 +88,7 @@ const EventDetailPage = () => {
         <meta name="description" content={event.description} />
       </Helmet>
       <Header />
-      <main className="pt-20 pb-12 bg-dark">
+      <main className="pt-40 pb-12 bg-dark ">
         <div className="container mx-auto px-6 md:px-12">
           <div className="mb-6">
             <Link href="/events">

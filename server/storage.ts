@@ -18,6 +18,9 @@ import {
   UserModel,
   ProductModel,
   OrderModel,
+  StreamModel,
+  StreamNotificationModel,
+  EmailTemplateModel,
   connectToDatabase 
 } from './models/db';
 import { 
@@ -94,6 +97,18 @@ export interface IStorage {
   getOrder(id: string): Promise<Order | null>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: string, order: Partial<Order>): Promise<Order | null>;
+
+  // Stream methods
+  getUpcomingStreams(limit?: number): Promise<any[]>;
+  getAllStreams(): Promise<any[]>;
+  getStream(id: string): Promise<any | null>;
+  createStream(stream: any): Promise<any>;
+  updateStream(id: string, stream: Partial<any>): Promise<any | null>;
+  deleteStream(id: string): Promise<boolean>;
+  
+  // Stream notification methods
+  createStreamNotification(notification: any): Promise<any>;
+  deleteStreamNotification(id: string, userId: string): Promise<boolean>;
 }
 
 export class MongoStorage implements IStorage {
@@ -811,6 +826,171 @@ export class MongoStorage implements IStorage {
     } catch (error) {
       console.error('Error updating Stripe subscription ID:', error);
       return null;
+    }
+  }
+
+  // Stream methods
+  async getUpcomingStreams(limit: number = 6): Promise<any[]> {
+    const now = new Date();
+    const streams = await StreamModel.find({ 
+      scheduledDate: { $gte: now },
+      streamStatus: 'scheduled'
+    }).sort({ scheduledDate: 1 }).limit(limit);
+    
+    return streams.map(stream => ({
+      id: stream._id.toString(),
+      title: stream.title,
+      description: stream.description,
+      artist: stream.artist,
+      scheduledDate: new Date(stream.scheduledDate),
+      youtubeId: stream.youtubeId,
+      thumbnailUrl: stream.thumbnailUrl,
+      streamType: stream.streamType,
+      streamStatus: stream.streamStatus,
+      expectedViewers: stream.expectedViewers,
+      actualViewers: stream.actualViewers,
+      streamUrl: stream.streamUrl,
+      featured: stream.featured,
+      createdAt: new Date(stream.createdAt)
+    }));
+  }
+
+  async getAllStreams(): Promise<any[]> {
+    const streams = await StreamModel.find().sort({ createdAt: -1 });
+    
+    return streams.map(stream => ({
+      id: stream._id.toString(),
+      title: stream.title,
+      description: stream.description,
+      artist: stream.artist,
+      scheduledDate: new Date(stream.scheduledDate),
+      youtubeId: stream.youtubeId,
+      thumbnailUrl: stream.thumbnailUrl,
+      streamType: stream.streamType,
+      streamStatus: stream.streamStatus,
+      expectedViewers: stream.expectedViewers,
+      actualViewers: stream.actualViewers,
+      streamUrl: stream.streamUrl,
+      featured: stream.featured,
+      createdAt: new Date(stream.createdAt)
+    }));
+  }
+
+  async getStream(id: string): Promise<any | null> {
+    try {
+      const stream = await StreamModel.findById(id);
+      if (!stream) return null;
+      
+      return {
+        id: stream._id.toString(),
+        title: stream.title,
+        description: stream.description,
+        artist: stream.artist,
+        scheduledDate: new Date(stream.scheduledDate),
+        youtubeId: stream.youtubeId,
+        thumbnailUrl: stream.thumbnailUrl,
+        streamType: stream.streamType,
+        streamStatus: stream.streamStatus,
+        expectedViewers: stream.expectedViewers,
+        actualViewers: stream.actualViewers,
+        streamUrl: stream.streamUrl,
+        featured: stream.featured,
+        createdAt: new Date(stream.createdAt)
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async createStream(stream: any): Promise<any> {
+    const newStream = await StreamModel.create({
+      ...stream,
+      createdAt: new Date()
+    });
+    
+    return {
+      id: newStream._id.toString(),
+      title: newStream.title,
+      description: newStream.description,
+      artist: newStream.artist,
+      scheduledDate: new Date(newStream.scheduledDate),
+      youtubeId: newStream.youtubeId,
+      thumbnailUrl: newStream.thumbnailUrl,
+      streamType: newStream.streamType,
+      streamStatus: newStream.streamStatus,
+      expectedViewers: newStream.expectedViewers,
+      actualViewers: newStream.actualViewers,
+      streamUrl: newStream.streamUrl,
+      featured: newStream.featured,
+      createdAt: new Date(newStream.createdAt)
+    };
+  }
+
+  async updateStream(id: string, stream: Partial<any>): Promise<any | null> {
+    try {
+      const updatedStream = await StreamModel.findByIdAndUpdate(id, {
+        ...stream,
+        updatedAt: new Date()
+      }, { new: true });
+      
+      if (!updatedStream) return null;
+      
+      return {
+        id: updatedStream._id.toString(),
+        title: updatedStream.title,
+        description: updatedStream.description,
+        artist: updatedStream.artist,
+        scheduledDate: new Date(updatedStream.scheduledDate),
+        youtubeId: updatedStream.youtubeId,
+        thumbnailUrl: updatedStream.thumbnailUrl,
+        streamType: updatedStream.streamType,
+        streamStatus: updatedStream.streamStatus,
+        expectedViewers: updatedStream.expectedViewers,
+        actualViewers: updatedStream.actualViewers,
+        streamUrl: updatedStream.streamUrl,
+        featured: updatedStream.featured,
+        createdAt: new Date(updatedStream.createdAt)
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async deleteStream(id: string): Promise<boolean> {
+    try {
+      const result = await StreamModel.findByIdAndDelete(id);
+      return !!result;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async createStreamNotification(notification: any): Promise<any> {
+    const newNotification = await StreamNotificationModel.create({
+      ...notification,
+      createdAt: new Date()
+    });
+    
+    return {
+      id: newNotification._id.toString(),
+      userId: newNotification.userId.toString(),
+      streamId: newNotification.streamId.toString(),
+      notifyAt: new Date(newNotification.notifyAt),
+      notificationType: newNotification.notificationType,
+      status: newNotification.status,
+      createdAt: new Date(newNotification.createdAt)
+    };
+  }
+
+  async deleteStreamNotification(id: string, userId: string): Promise<boolean> {
+    try {
+      const result = await StreamNotificationModel.findOneAndDelete({ 
+        _id: id, 
+        userId: userId 
+      });
+      return !!result;
+    } catch (error) {
+      return false;
     }
   }
 

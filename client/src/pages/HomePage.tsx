@@ -9,9 +9,10 @@ import GallerySection from '@/components/GallerySection';
 import AboutSection from '@/components/AboutSection';
 import LiveNowButton from '@/components/LiveNowButton';
 import YouTubeLiveEmbed from '@/components/YouTubeLiveEmbed';
+import UpcomingStreamsSection from '@/components/UpcomingStreamsSection';
 
 
-const YOUTUBE_CHANNEL_ID = 'UClg7MOoRjcwBClXsWlp8yag';
+const YOUTUBE_CHANNEL_ID = 'UCfiwzLy-8yKzIbsmZTzxDgw';
 
 const HomePage = () => {
   return (
@@ -24,21 +25,24 @@ const HomePage = () => {
       <main>
         {/* Show live stream in place of HeroSection if live, otherwise show HeroSection */}
         <YouTubeLiveEmbed channelId={YOUTUBE_CHANNEL_ID}>
-          {({ isLive }) =>
-            isLive ? (
-              <YouTubeLiveEmbed channelId={YOUTUBE_CHANNEL_ID} />
-            ) : (
-              <HeroSection />
-            )
-          }
+          {({ isLive, liveVideoId }) => (
+            <>
+              {isLive ? (
+                <YouTubeLiveEmbed channelId={YOUTUBE_CHANNEL_ID} />
+              ) : (
+                <HeroSection />
+              )}
+              <LiveNowButton isLive={isLive} liveUrl={liveVideoId ? `/videos/${liveVideoId}` : undefined} />
+            </>
+          )}
         </YouTubeLiveEmbed>
         <FeaturedVideos />
-        <EventsSection />
+        <UpcomingStreamsSection />
+        
         <MusicSection />
         <GallerySection />
         <AboutSection />
       </main>
-      <LiveNowButton />
       <Footer />
     </>
   );

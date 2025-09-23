@@ -10,6 +10,8 @@ import AboutSection from '@/components/AboutSection';
 import LiveNowButton from '@/components/LiveNowButton';
 import YouTubeLiveEmbed from '@/components/YouTubeLiveEmbed';
 import UpcomingStreamsSection from '@/components/UpcomingStreamsSection';
+import StatsCounter from '@/components/StatsCounter';
+
 
 
 const YOUTUBE_CHANNEL_ID = 'UCfiwzLy-8yKzIbsmZTzxDgw';
@@ -37,6 +39,7 @@ const HomePage = () => {
           )}
         </YouTubeLiveEmbed>
         <FeaturedVideos />
+        <StatsCounter />
         <UpcomingStreamsSection />
         
         <MusicSection />

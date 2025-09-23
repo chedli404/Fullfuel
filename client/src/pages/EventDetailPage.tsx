@@ -33,7 +33,7 @@ const EventDetailPage = () => {
     return (
       <>
         <Header />
-        <main className="pt-20 pb-12 bg-dark min-h-screen">
+        <main className="pt-40 pb-12 bg-dark min-h-screen">
           <div className="container mx-auto px-6 md:px-12">
             <div className="w-full h-[40vh] bg-[#1A1A1A] animate-pulse mb-8"></div>
             <div className="h-8 bg-[#1A1A1A] w-3/4 animate-pulse mb-4"></div>

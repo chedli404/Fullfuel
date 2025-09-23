@@ -67,7 +67,7 @@ export const sendStreamNotification = async (
     timeZoneName: 'short'
   });
   
-  const streamUrl = `${process.env.CLIENT_URL || 'https://fullfueltv.online'}/streams/${streamData.id}`;
+  const streamUrl = `${process.env.CLIENT_URL || 'https://fullfueltv.online'}/#streams`;
   
   // Replace variables in template
   let subject = template.subject

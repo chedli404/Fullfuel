@@ -14,7 +14,7 @@ import StatsCounter from '@/components/StatsCounter';
 
 
 
-const YOUTUBE_CHANNEL_ID = 'UCfiwzLy-8yKzIbsmZTzxDgw';
+const YOUTUBE_CHANNEL_ID = 'UClg7MOoRjcwBClXsWlp8yag';
 
 const HomePage = () => {
   return (

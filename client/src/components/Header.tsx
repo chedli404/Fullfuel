@@ -42,11 +42,11 @@ const Header = () => {
   const { isAuthenticated } = useAuth();
   return (
     <header className={`fixed top-0 w-full z-50 transition-all ${scrolled ? 'bg-black bg-opacity-90 backdrop-blur-md' : 'bg-transparent'}`}>
-      <div className="w-full px-4 py-2 flex items-center justify-between md:justify-start " style={{ height: '120px' }}>
+      <div className="w-full px-4 py-2 flex items-center justify-between md:justify-start " style={{ height: '80px' }}>
         {/* Logo with 3D rotation animation */}
-        <Link to="/" className="flex items-center flex-shrink-0">
+        <Link to="/" className="flex items-center flex-shrink-0 ">
           <motion.div
-            className="w-[80px] h-[140px] md:w-[140px] md:h-[180px] absolute left-0 top-[-30px] rounded-full overflow-hidden"
+            className="w-[60px] h-[100px] md:w-[90px] md:h-[130px] absolute left-0 md:top-[-26px] top-[-11px] rounded-full overflow-hidden"
             whileHover={{
               scale: 1.1,
               transition: { duration: 0.5 }

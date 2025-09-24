@@ -1,23 +1,23 @@
-    <?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      <url>
-        <loc>https://fullfueltv.online/</loc>
-        <priority>1.0</priority>
-      </url>
-      <url>
-        <loc>https://fullfueltv.online/videos</loc>
-        <priority>0.9</priority>
-      </url>
-      <url>
-        <loc>https://fullfueltv.online/audio</loc>
-        <priority>0.9</priority>
-      </url>
-      <url>
-        <loc>https://fullfueltv.online/about</loc>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://fullfueltv.online/contact</loc>
-        <priority>0.8</priority>
-      </url>
-    </urlset>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://fullfueltv.online/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://fullfueltv.online/videos</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://fullfueltv.online/audio</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://fullfueltv.online/about</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fullfueltv.online/contact</loc>
+    <priority>0.8</priority>
+  </url>
+</urlset>

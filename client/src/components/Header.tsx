@@ -32,7 +32,7 @@ const Header = () => {
 
   const navLinks = [
     { name: 'Videos', path: '/videos' },
-    
+
     { name: 'Audio', path: '/music' },
     { name: 'Gallery', path: '/gallery' },
     { name: 'Shop', path: '/shop' },
@@ -42,19 +42,19 @@ const Header = () => {
   const { isAuthenticated } = useAuth();
   return (
     <header className={`fixed top-0 w-full z-50 transition-all ${scrolled ? 'bg-black bg-opacity-90 backdrop-blur-md' : 'bg-transparent'}`}>
-      <div className="w-full px-4 py-2 flex items-center justify-between md:justify-start " style={{height: '120px'}}>
+      <div className="w-full px-4 py-2 flex items-center justify-between md:justify-start " style={{ height: '120px' }}>
         {/* Logo with 3D rotation animation */}
         <Link to="/" className="flex items-center flex-shrink-0">
           <motion.div
-            className="w-[80px] h-[14     0px] md:w-[140px] md:h-[180px] absolute left-0 top-[-30px] rounded-full overflow-hidden"
-            whileHover={{ 
+            className="w-[80px] h-[140px] md:w-[140px] md:h-[180px] absolute left-0 top-[-30px] rounded-full overflow-hidden"
+            whileHover={{
               scale: 1.1,
               transition: { duration: 0.5 }
             }}
             initial={{ rotate: 0 }}
-            animate={{ 
+            animate={{
               rotate: 360,
-              transition: { 
+              transition: {
                 duration: 12,
                 repeat: Infinity,
                 repeatType: "loop",
@@ -62,9 +62,9 @@ const Header = () => {
               }
             }}
           >
-            <img 
-              src="/images/2.png" 
-              alt="Full Fuel Logo" 
+            <img
+              src="/images/2.png"
+              alt="Full Fuel Logo"
               className="w-full h-full object-cover"
             />
           </motion.div>
@@ -75,12 +75,12 @@ const Header = () => {
           <div className="flex items-center space-x-8">
             <nav className="flex space-x-8">
               {navLinks.map(link => (
-                <Link 
-                  key={link.path} 
-                  to={link.path} 
-                  className={`nav-link text-white uppercase font-medium hover:text-primary transition-colors relative ${isActive(link.path) ? 'text-primary' : ''}`}
+                <Link
+                  to={link.path}
+                  className="nav-link text-white uppercase font-medium hover:text-primary transition-all duration-300 relative group"
                 >
                   {link.name}
+                  <span className="absolute bottom-[-2px] left-0 w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full"></span>
                   {isActive(link.path) && (
                     <span className="absolute bottom-[-2px] left-0 w-full h-[2px] bg-primary"></span>
                   )}
@@ -99,8 +99,8 @@ const Header = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <button 
-          onClick={() => setMobileNavOpen(true)} 
+        <button
+          onClick={() => setMobileNavOpen(true)}
           className="md:hidden text-white focus:outline-none ml-auto"
           aria-label="Open mobile menu"
         >
@@ -109,21 +109,21 @@ const Header = () => {
       </div>
 
       {/* Mobile Navigation Menu */}
-      <div 
+      <div
         className={`fixed top-0 right-0 h-full w-64 bg-[#1A1A1A] z-50 p-6 transition-transform duration-300 ${mobileNavOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
         <div className="flex justify-between items-center mb-8">
           {/* Logo in mobile menu */}
           <motion.div
             className="w-[100px] h-[100px] relative"
-            whileHover={{ 
+            whileHover={{
               scale: 1.1,
               transition: { duration: 0.5 }
             }}
             initial={{ rotate: 0 }}
-            animate={{ 
+            animate={{
               rotate: 360,
-              transition: { 
+              transition: {
                 duration: 12,
                 repeat: Infinity,
                 repeatType: "loop",
@@ -131,15 +131,15 @@ const Header = () => {
               }
             }}
           >
-            <img 
-              src="/images/3.png" 
-              alt="Full Fuel Logo" 
-              className="w-full h-full object-contain" 
+            <img
+              src="/images/3.png"
+              alt="Full Fuel Logo"
+              className="w-full h-full object-contain"
             />
           </motion.div>
-          
-          <button 
-            onClick={closeNav} 
+
+          <button
+            onClick={closeNav}
             className="text-white focus:outline-none"
             aria-label="Close mobile menu"
           >
@@ -148,9 +148,9 @@ const Header = () => {
         </div>
         <nav className="flex flex-col space-y-6">
           {navLinks.map(link => (
-            <Link 
-              key={link.path} 
-              to={link.path} 
+            <Link
+              key={link.path}
+              to={link.path}
               className={`text-white uppercase font-medium hover:text-primary transition-colors ${isActive(link.path) ? 'text-primary' : ''}`}
               onClick={closeNav}
             >
@@ -158,7 +158,7 @@ const Header = () => {
             </Link>
           ))}
         </nav>
-        
+
         {/* User Menu & Cart in Mobile Menu */}
         <div className="mt-8 mb-8 flex items-center">
           <div className="mr-4">
@@ -166,11 +166,11 @@ const Header = () => {
           </div>
           <UserMenu />
         </div>
-        
+
         <div className="mt-4 flex space-x-4">
           <a href="https://www.youtube.com/c/FullFuel" target="_blank" rel="noopener noreferrer" className="text-white hover:text-primary transition-colors">
             <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+              <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
             </svg>
           </a>
           <a href="https://www.instagram.com/fullfuel.tv/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-primary transition-colors">

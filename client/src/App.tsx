@@ -26,6 +26,7 @@ import CheckoutSuccessPage from "@/pages/CheckoutSuccessPage";
 import NotFound from "@/pages/not-found";
 import VerifyEmailPage from "@/pages/verify";
 
+
 function Router() {
   return (
     <Switch>

@@ -10,6 +10,8 @@ import AboutSection from '@/components/AboutSection';
 import LiveNowButton from '@/components/LiveNowButton';
 import YouTubeLiveEmbed from '@/components/YouTubeLiveEmbed';
 import UpcomingStreamsSection from '@/components/UpcomingStreamsSection';
+import StatsCounter from '@/components/StatsCounter';
+
 
 
 const YOUTUBE_CHANNEL_ID = 'UCfiwzLy-8yKzIbsmZTzxDgw';
@@ -18,7 +20,7 @@ const HomePage = () => {
   return (
     <>
       <Helmet>
-        <title>Full Fuel TV | Electronic Music, Videos & Events</title>
+        <title>Full Fuel TV | Live Streaming Platform for Music Artists</title>
         <meta name="description" content="Full Fuel TV explores electronic music through the best live sets & DJ mixes from around the world." />
       </Helmet>
       <Header />
@@ -37,6 +39,7 @@ const HomePage = () => {
           )}
         </YouTubeLiveEmbed>
         <FeaturedVideos />
+        <StatsCounter />
         <UpcomingStreamsSection />
         
         <MusicSection />

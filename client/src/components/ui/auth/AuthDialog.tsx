@@ -125,39 +125,33 @@ export function AuthDialog({
     },
   });
 
-  // Register mutation
-  const registerMutation = useMutation({
-    mutationFn: (data: RegisterFormValues) =>
-      apiRequest('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      }),
-    onSuccess: (data) => {
-      if (data.token && data.user) {
-        setShowVerifyMsg(true);
-        toast({
-          title: 'Registration successful',
-          description: `Please verify your account. A verification email has been sent.`,
-        });
-      } else {
-        toast({
-          title: 'Registration failed',
-          description: data.message || 'An error occurred during registration',
-          variant: 'destructive',
-        });
-      }
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Registration failed',
-        description: error.message || 'An error occurred during registration',
-        variant: 'destructive',
-      });
-    },
-  });
+// Register mutation
+const registerMutation = useMutation({
+  mutationFn: (data: RegisterFormValues) =>
+    apiRequest('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    }),
+  onSuccess: (data) => {
+    // Always show verification panel on successful registration
+    setShowVerifyMsg(true);
+    toast({
+      title: 'Registration successful',
+      description: `Please verify your account. A verification email has been sent.`,
+    });
+  },
+  onError: (error: any) => {
+    toast({
+      title: 'Registration failed',
+      description: error.message || 'An error occurred during registration',
+      variant: 'destructive',
+    });
+  },
+});
+
 
   // Login form submission
   const onLoginSubmit = (data: LoginFormValues) => {

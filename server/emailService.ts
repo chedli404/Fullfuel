@@ -31,8 +31,9 @@ import crypto from 'crypto';
 
 // Email configuration with better error handling
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
+ host: 'smtp.gmail.com',
+  port: 465, // Try SSL port instead of 587
+  secure: true, // Use SSL  auth: {
     user: process.env.EMAIL_USER || 'infofullfueltv@gmail.com',
     pass: process.env.EMAIL_PASS || 'your-app-password'
   },

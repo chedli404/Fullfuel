@@ -37,10 +37,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER || 'infofullfueltv@gmail.com',
     pass: process.env.EMAIL_PASS || 'your-app-password'
   },
-  // Add connection timeout and retry options for production
-  connectionTimeout: 60000,
-  greetingTimeout: 30000,
-  socketTimeout: 60000
+ 
 });
 
 // Test email configuration on startup

@@ -73,10 +73,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server
   const httpServer = createServer(app);
 
-  // Connect to MongoDB
-  await connectToDatabase();
+  // Connect to MongoDB (async, don't block startup)
+  connectToDatabase().catch(console.error);
   
-  // Start notification scheduler
+  // Start notification scheduler (async, don't block startup)
   notificationScheduler.start();
   
   // Initialize PayPal client if credentials are available
@@ -110,6 +110,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/register/google', authController.registerWithGoogle);
   // Email verification endpoint
   app.get('/api/auth/verify-email', authController.verifyEmail);
+  
+  // Debug endpoint for email configuration (production only)
+  app.get('/api/debug/email-config', (req, res) => {
+    if (process.env.NODE_ENV !== 'production') {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    res.json({
+      hasEmailUser: !!process.env.EMAIL_USER,
+      hasEmailPass: !!process.env.EMAIL_PASS,
+      emailUserLength: process.env.EMAIL_USER?.length || 0,
+      emailPassLength: process.env.EMAIL_PASS?.length || 0,
+      clientUrl: process.env.CLIENT_URL,
+      backendUrl: process.env.BACKEND_URL,
+      nodeEnv: process.env.NODE_ENV
+    });
+  });
   
   
   // Videos

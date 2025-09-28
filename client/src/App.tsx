@@ -7,53 +7,65 @@ import { CartProvider } from "@/contexts/CartContext";
 import { PayPalProvider } from "@/contexts/PayPalContext";
 import { CartDrawer } from "@/components/ui/cart/CartDrawer";
 import { MusicPlayerProvider } from "@/components/MusicPlayerProvider";
+import { Suspense, lazy } from "react";
 
-// Pages
-import HomePage from "@/pages/HomePage";
-import VideosPage from "@/pages/VideosPage";
-import EventsPage from "@/pages/EventsPage";
-import MusicPage from "@/pages/MusicPage";
-import GalleryPage from "@/pages/GalleryPage";
-import AboutPage from "@/pages/AboutPage";
-import VideoDetailPage from "@/pages/VideoDetailPage";
-import EventDetailPage from "@/pages/EventDetailPage";
-import ProfilePage from "@/pages/ProfilePage";
-import AdminDashboard from "@/pages/admin/Dashboard";
-import ShopPage from "@/pages/ShopPage";
-import ProductDetailPage from "@/pages/ProductDetailPage";
-import CheckoutPage from "@/pages/CheckoutPage";
-import CheckoutSuccessPage from "@/pages/CheckoutSuccessPage";
-import NotFound from "@/pages/not-found";
-import VerifyEmailPage from "@/pages/verify";
+// Lazy load pages for better performance
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const VideosPage = lazy(() => import("@/pages/VideosPage"));
+const EventsPage = lazy(() => import("@/pages/EventsPage"));
+const MusicPage = lazy(() => import("@/pages/MusicPage"));
+const GalleryPage = lazy(() => import("@/pages/GalleryPage"));
+const AboutPage = lazy(() => import("@/pages/AboutPage"));
+const VideoDetailPage = lazy(() => import("@/pages/VideoDetailPage"));
+const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
+const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
+const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
+const ShopPage = lazy(() => import("@/pages/ShopPage"));
+const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
+const CheckoutPage = lazy(() => import("@/pages/CheckoutPage"));
+const CheckoutSuccessPage = lazy(() => import("@/pages/CheckoutSuccessPage"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+const VerifyEmailPage = lazy(() => import("@/pages/verify"));
+
+// Loading component
+const PageLoader = () => (
+  <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+      <p className="text-white">Loading...</p>
+    </div>
+  </div>
+);
 
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={HomePage} />
-      <Route path="/videos" component={VideosPage} />
-      <Route path="/videos/:id" component={VideoDetailPage} />
-      <Route path="/events" component={EventsPage} />
-      <Route path="/events/:id" component={EventDetailPage} />
-      <Route path="/music" component={MusicPage} />
-      <Route path="/gallery" component={GalleryPage} />
-      <Route path="/about" component={AboutPage} />
-      <Route path="/profile" component={ProfilePage} />
-      {/* Shop routes */}
-      <Route path="/shop" component={ShopPage} />
-      <Route path="/shop/:id" component={ProductDetailPage} />
-      <Route path="/shop/products/:id" component={ProductDetailPage} />
-      <Route path="/checkout" component={CheckoutPage} />
-      <Route path="/checkout-success" component={CheckoutSuccessPage} />
-      {/* Admin routes */}
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/dashboard" component={AdminDashboard} />
-      {/* Email verification routes */}
-      <Route path="/verify" component={VerifyEmailPage} />
-      {/* Fallback to 404 */}
-      <Route component={NotFound} />
-
-    </Switch>
+    <Suspense fallback={<PageLoader />}>
+      <Switch>
+        <Route path="/" component={HomePage} />
+        <Route path="/videos" component={VideosPage} />
+        <Route path="/videos/:id" component={VideoDetailPage} />
+        <Route path="/events" component={EventsPage} />
+        <Route path="/events/:id" component={EventDetailPage} />
+        <Route path="/music" component={MusicPage} />
+        <Route path="/gallery" component={GalleryPage} />
+        <Route path="/about" component={AboutPage} />
+        <Route path="/profile" component={ProfilePage} />
+        {/* Shop routes */}
+        <Route path="/shop" component={ShopPage} />
+        <Route path="/shop/:id" component={ProductDetailPage} />
+        <Route path="/shop/products/:id" component={ProductDetailPage} />
+        <Route path="/checkout" component={CheckoutPage} />
+        <Route path="/checkout-success" component={CheckoutSuccessPage} />
+        {/* Admin routes */}
+        <Route path="/admin" component={AdminDashboard} />
+        <Route path="/admin/dashboard" component={AdminDashboard} />
+        {/* Email verification routes */}
+        <Route path="/verify" component={VerifyEmailPage} />
+        {/* Fallback to 404 */}
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 

@@ -29,12 +29,25 @@ export const sendContactMessage = async (name: string, email: string, message: s
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
-// Email configuration
+// Email configuration with better error handling
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER || 'your-email@gmail.com',
+    user: process.env.EMAIL_USER || 'infofullfueltv@gmail.com',
     pass: process.env.EMAIL_PASS || 'your-app-password'
+  },
+  // Add connection timeout and retry options for production
+  connectionTimeout: 60000,
+  greetingTimeout: 30000,
+  socketTimeout: 60000
+});
+
+// Test email configuration on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('Email configuration error:', error);
+  } else {
+    console.log('Email server is ready to send messages');
   }
 });
 
@@ -110,12 +123,15 @@ export const sendStreamNotification = async (
 };
 
 export const sendVerificationEmail = async (email: string, username: string, token: string) => {
-const verificationUrl = `${process.env.CLIENT_URL || 'https://fullfueltv.online'}/api/auth/verify-email?token=${token}`;
+  // Fix: Use the correct backend URL for verification
+  const backendUrl = process.env.BACKEND_URL || process.env.CLIENT_URL || 'https://fullfueltv.online';
+  const verificationUrl = `${backendUrl}/api/auth/verify-email?token=${token}`;
   console.log('Verification URL:', verificationUrl);
   console.log('Email config:', {
     user: process.env.EMAIL_USER,
     passLength: process.env.EMAIL_PASS?.length,
-    clientUrl: process.env.CLIENT_URL
+    clientUrl: process.env.CLIENT_URL,
+    backendUrl: backendUrl
   });
 
   // FullFuelTV branding
@@ -152,9 +168,17 @@ const verificationUrl = `${process.env.CLIENT_URL || 'https://fullfueltv.online'
 
   try {
     console.log('Attempting to send email to:', email);
+    console.log('Email configuration check:', {
+      hasUser: !!process.env.EMAIL_USER,
+      hasPass: !!process.env.EMAIL_PASS,
+      userLength: process.env.EMAIL_USER?.length,
+      passLength: process.env.EMAIL_PASS?.length
+    });
+    
     const result = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully:', result.messageId);
     console.log('Verification email sent to:', email);
+    return result;
   } catch (error) {
     console.error('DETAILED EMAIL ERROR:', error);
     if (typeof error === 'object' && error !== null) {
@@ -164,7 +188,17 @@ const verificationUrl = `${process.env.CLIENT_URL || 'https://fullfueltv.online'
       if ('message' in error) {
         console.error('Error message:', (error as any).message);
       }
+      if ('response' in error) {
+        console.error('SMTP response:', (error as any).response);
+      }
     }
+    
+    // Don't throw the error in production to prevent registration from failing
+    if (process.env.NODE_ENV === 'production') {
+      console.error('Email sending failed in production, but continuing...');
+      return null;
+    }
+    
     throw error;
   }
 };

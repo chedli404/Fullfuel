@@ -384,23 +384,32 @@ export const authController = {
         },
         { new: true }
       );
-      if (userDoc) {
-        await sendVerificationEmail(userDoc.email, userDoc.username || userDoc.name, verificationToken);
-      }
-      const token = jwt.sign(
-        { id: user.id, name: user.name, email: user.email },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-      const userWithoutPassword = {
-        ...user,
-        password: undefined
-      };
-      return res.json({ token, user: userWithoutPassword, verification: 'sent' });
+      // In auth.controller.ts, around line 350-360, wrap the email sending:
+if (userDoc) {
+  try {
+    await sendVerificationEmail(userDoc.email, userDoc.username || userDoc.name, verificationToken);
+    console.log('Verification email sent successfully');
+  } catch (emailError) {
+    console.error('Email sending failed, but continuing registration:', emailError);
+    // Don't throw the error - let registration succeed even if email fails
+  }
+}
+
+const token = jwt.sign(
+  { id: user.id, name: user.name, email: user.email },
+  JWT_SECRET,
+  { expiresIn: '7d' }
+);
+
+const userWithoutPassword = {
+  ...user,
+  password: undefined
+};
+
+return res.json({ token, user: userWithoutPassword, verification: 'sent' });
     } catch (error) {
       console.error('Registration error:', error);
-      return res.status(500).json({ error: 'Error creating user' });
+      return res.status(500).json({ error: 'Error registering user' });
     }
-  },
-
+  }
 };

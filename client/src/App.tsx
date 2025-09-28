@@ -29,12 +29,11 @@ const VerifyEmailPage = lazy(() => import("@/pages/verify"));
 
 // Loading component
 const PageLoader = () => (
-  <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-      <p className="text-white">Loading...</p>
-    </div>
-  </div>
+  <section className="relative w-full h-screen overflow-hidden pt-16 bg-dark">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </section>
 );
 
 

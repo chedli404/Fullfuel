@@ -17,8 +17,16 @@ export const sendVerificationEmail = async (email: string, username: string, tok
   
   const msg = {
     to: email,
-    from: process.env.EMAIL_FROM || 'infofullfueltv@gmail.com',
+    from: {
+      email: 'noreply@fullfueltv.online',
+      name: 'Full Fuel TV'
+    },
+    replyTo: 'support@fullfueltv.online',
     subject: 'Verify Your Email - Full Fuel TV',
+    categories: ['email-verification'],
+    customArgs: {
+      type: 'verification'
+    },
     html: `
       <div style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;background:#0a0e11;color:#fff;padding:32px 24px;border-radius:14px;box-shadow:0 4px 32px rgba(29, 245, 18, 0.13);">
         <div style="text-align:center;margin-bottom:32px;">
@@ -26,9 +34,9 @@ export const sendVerificationEmail = async (email: string, username: string, tok
           <h1 style="color:${accentColor};font-size:28px;margin-bottom:8px;">Welcome to Full Fuel TV</h1>
           <h2 style="color:#fff;font-size:20px;margin:0;">Hello ${username},</h2>
         </div>
-        <p style="color:#cbd5e1;font-size:16px;line-height:1.7;margin-bottom:32px;">Thank you for joining Full Fuel TV Please verify your email address to complete your registration and unlock exclusive content, live events, and more.</p>
+        <p style="color:#cbd5e1;font-size:16px;line-height:1.7;margin-bottom:32px;">Thank you for joining Full Fuel TV! Please verify your email address to complete your registration and unlock exclusive content, live events, and more.</p>
         <div style="text-align:center;margin:40px 0;">
-          <a href="${verificationUrl}" target="_blank" style="display:inline-block;background:${accentColor};color:#fff;padding:16px 36px;border-radius:8px;font-weight:bold;text-decoration:none;font-size:18px;box-shadow:0 4px 16px ${accentColor}44;transition:background 0.2s;">🔓 Verify Email Address</a>
+          <a href="${verificationUrl}" target="_blank" style="display:inline-block;background:${accentColor};color:#000;padding:16px 36px;border-radius:8px;font-weight:bold;text-decoration:none;font-size:18px;box-shadow:0 4px 16px ${accentColor}44;transition:background 0.2s;">🔓 Verify Email Address</a>
         </div>
         <div style="background:#1e293b;padding:18px 16px;border-radius:8px;margin:32px 0;">
           <p style="color:#cbd5e1;margin-bottom:8px;font-size:14px;">If the button doesn't work, copy and paste this link:</p>
@@ -55,27 +63,29 @@ export const sendVerificationEmail = async (email: string, username: string, tok
 };
 
 export const sendContactMessage = async (name: string, email: string, message: string) => {
-  const adminEmail = process.env.CONTACT_EMAIL || process.env.EMAIL_FROM || 'infofullfueltv@gmail.com';
-  const accentColor = '#00ff40';
-  
   const msg = {
-    to: adminEmail,
-    from: process.env.EMAIL_FROM || 'infofullfueltv@gmail.com',
+    to: 'support@fullfueltv.online',
+    from: {
+      email: 'noreply@fullfueltv.online',
+      name: 'Full Fuel TV'
+    },
+    replyTo: email,
     subject: `New Contact Message from ${name}`,
+    categories: ['contact-form'],
     html: `
       <div style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;background:#0a0e11;color:#fff;padding:32px 24px;border-radius:14px;box-shadow:0 4px 32px rgba(29, 245, 18, 0.13);">
-        <h2 style="color:${accentColor};font-size:22px;margin-bottom:8px;">New Contact Message</h2>
+        <h2 style="color:#00ff40;font-size:22px;margin-bottom:8px;">New Contact Message</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Message:</strong></p>
         <div style="background:#1e293b;padding:18px 16px;border-radius:8px;margin:16px 0;color:#cbd5e1;">${message || '<i>No message provided</i>'}</div>
-        <p style="color:#64748b;font-size:13px;margin-top:32px;">This message was sent from the Full Fuel TV About page contact form.</p>
+        <p style="color:#64748b;font-size:13px;margin-top:32px;">This message was sent from the Full Fuel TV contact form.</p>
       </div>
     `
   };
 
   try {
-    console.log('Sending contact message via SendGrid to admin:', adminEmail);
+    console.log('Sending contact message via SendGrid');
     await sgMail.send(msg);
     console.log('Contact email sent successfully via SendGrid');
   } catch (error) {
@@ -129,8 +139,12 @@ export const sendStreamNotification = async (
   
   const msg = {
     to: userEmail,
-    from: process.env.EMAIL_FROM || 'infofullfueltv@gmail.com',
+    from: {
+      email: 'noreply@fullfueltv.online',
+      name: 'Full Fuel TV'
+    },
     subject: subject,
+    categories: ['stream-notification'],
     html: htmlContent,
     text: textContent
   };

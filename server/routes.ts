@@ -246,31 +246,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Subscribers
-  app.post("/api/subscribers", async (req, res) => {
-    try {
-      // Convert subscribeDate to Date if it's a string
-      if (req.body.subscribeDate && typeof req.body.subscribeDate === 'string') {
-        req.body.subscribeDate = new Date(req.body.subscribeDate);
-      }
-      // Validate request body
-      const subscriberInput = subscriberSchema.omit({ id: true }).safeParse(req.body);
-      if (!subscriberInput.success) {
-        return res.status(400).json({ 
-          message: "Invalid subscriber data", 
-          errors: subscriberInput.error.errors 
-        });
-      }
-      const subscriber = await storage.createSubscriber({
-        ...subscriberInput.data,
-        subscribeDate: subscriberInput.data.subscribeDate || new Date()
+  // Newsletter subscription endpoint
+app.post("/api/subscribe", async (req, res) => {
+  try {
+    const { name, email, agreedToMarketing } = req.body;
+    
+    if (!name || !email || !agreedToMarketing) {
+      return res.status(400).json({ 
+        message: "Name, email, and marketing consent are required" 
       });
-      res.status(201).json(subscriber);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to create subscriber" });
     }
-  });
-  
+
+    // Create subscriber
+    const subscriber = await storage.createSubscriber({
+      name,
+      email,
+      marketingConsent: agreedToMarketing,
+      subscribeDate: new Date()
+    });
+
+    // Send welcome email (optional)
+    // await sendWelcomeEmail(email, name);
+
+    res.status(201).json({ message: "Successfully subscribed!" });
+  } catch (error) {
+    console.error("Subscribe error:", error);
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Email already subscribed" });
+    }
+    res.status(500).json({ message: "Failed to subscribe" });
+  }
+});
+
   // Ticket endpoints
   app.post('/api/tickets/purchase', ticketsController.purchaseTicket);
   app.get('/api/tickets/user', ticketsController.getUserTickets);

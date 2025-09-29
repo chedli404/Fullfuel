@@ -33,7 +33,7 @@ const AboutSection = () => {
 
   const subscribeMutation = useMutation({
     mutationFn: (data: NewsletterFormData) => {
-      return apiRequest('/api/subscribe', {
+      return apiRequest('/api/subscribes', {
         method: 'POST',
         body: JSON.stringify(data),
       });

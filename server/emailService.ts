@@ -21,7 +21,7 @@ export const sendVerificationEmail = async (email: string, username: string, tok
       email: 'noreply@fullfueltv.online',
       name: 'Full Fuel TV'
     },
-    replyTo: 'support@fullfueltv.online',
+    replyTo: 'infofullfueltv@gmail.com',
     subject: 'Verify Your Email - Full Fuel TV',
     categories: ['email-verification'],
     customArgs: {
@@ -64,7 +64,7 @@ export const sendVerificationEmail = async (email: string, username: string, tok
 
 export const sendContactMessage = async (name: string, email: string, message: string) => {
   const msg = {
-    to: 'support@fullfueltv.online',
+    to: 'infofullfueltv@gmail.com',
     from: {
       email: 'noreply@fullfueltv.online',
       name: 'Full Fuel TV'
